@@ -342,19 +342,20 @@ start_services() {
 }
 
 print_summary() {
-  local first link
+  local first
   first=$(jq -r 'first(.[] | select(.enabled) | .name)' "$CLIENTS_DB")
-  link=$(client_link "$first")
   echo
   echo "${C_GREEN}${C_BOLD}=============================================================${C_RESET}"
   echo "${C_GREEN}${C_BOLD}  Установка завершена${C_RESET}"
   echo "${C_GREEN}${C_BOLD}=============================================================${C_RESET}"
   echo
   echo "${C_BOLD}VPN для HAPP — устройство '$first':${C_RESET}"
-  printf '%s\n\n' "$link"
-  print_qr "$link"
+  echo
+  print_client_links "$first" 1
+  echo
   echo "Отсканируйте QR в HAPP (кнопка «+» → QR-код) или скопируйте ссылку"
   echo "и в HAPP нажмите «+» → «Вставить из буфера обмена»."
+  mobile_profile_enabled && echo "Профиль «-mob» — для мобильного интернета (дробление ClientHello против DPI оператора)."
   if telegram_enabled; then
     echo
     echo "${C_BOLD}Telegram Proxy:${C_RESET}"

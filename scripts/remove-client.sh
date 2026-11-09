@@ -43,7 +43,7 @@ if ! ( render_xray_config ); then
   cp -p "$backup_db" "$CLIENTS_DB"; rm -f "$backup_db"
   die "Клиент не удалён."
 fi
-rm -f "$backup_db" "$EXPORT_DIR/$NAME.png"
+rm -f "$backup_db" "$EXPORT_DIR/$NAME.png" "$EXPORT_DIR/$NAME-mobile.png"
 fix_permissions
 apply_service xray
 log_ok "Клиент '$NAME' удалён, его ссылка больше не работает."

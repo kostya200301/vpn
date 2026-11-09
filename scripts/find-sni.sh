@@ -187,8 +187,7 @@ echo
 echo "${C_BOLD}Новые ссылки — удалите старые подключения в HAPP и добавьте эти:${C_RESET}"
 while IFS= read -r name; do
   [[ -n "$name" ]] || continue
-  echo "  [$name]"
-  echo "  $(client_link "$name")"
+  print_client_links "$name" 0 | sed 's/^/  /'
   echo
 done < <(jq -r '.[] | select(.enabled) | .name' "$CLIENTS_DB")
 echo "QR-код устройства: sudo ./manage.sh show-config <имя>"

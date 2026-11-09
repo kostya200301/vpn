@@ -108,6 +108,8 @@ load_env() {
   set +a
   : "${XRAY_PORT:=443}" "${MTG_PORT:=8443}" "${SERVER_LABEL:=DE}" "${CLIENT_FINGERPRINT:=chrome}"
   : "${BACKUP_KEEP:=10}" "${COMPOSE_PROFILES:=}" "${FIREWALL_MANAGE:=yes}" "${ENABLE_BBR:=yes}"
+  # Без ':' — явно пустое значение в .env отключает мобильный профиль
+  : "${MOBILE_FRAGMENT=20-50,5-10,tlshello}"
   export XRAY_PORT MTG_PORT SERVER_LABEL CLIENT_FINGERPRINT BACKUP_KEEP COMPOSE_PROFILES
 }
 
@@ -263,18 +265,58 @@ client_delete() {
   jq --arg n "$1" 'map(select(.name != $n))' "$CLIENTS_DB" | clients_write
 }
 
+# Профиль «Мобильный» включён, если задан MOBILE_FRAGMENT
+mobile_profile_enabled() { [[ -n "${MOBILE_FRAGMENT:-}" ]]; }
+
+validate_mobile_fragment() {
+  [[ -z "${MOBILE_FRAGMENT:-}" ]] && return 0
+  [[ $MOBILE_FRAGMENT =~ ^[0-9]+-[0-9]+,[0-9]+-[0-9]+,(tlshello|[0-9]+-[0-9]+)(,[0-9]+(-[0-9]+)?)?$ ]] || \
+    die "MOBILE_FRAGMENT в .env имеет неверный формат. Пример: 20-50,5-10,tlshello (длина,интервал,пакеты)"
+}
+
 # Ссылка vless:// (стандарт обмена ссылками Xray, VLESS + REALITY + Vision)
+#   client_link <имя> [home|mobile]
+#   mobile — добавляет параметр HAPP fragment=длина,интервал,пакеты: дробление
+#   TLS ClientHello, чтобы DPI мобильного оператора не видел SNI в одном пакете.
 client_link() {
-  local name=$1 c uuid sid host
+  local name=$1 variant=${2:-home} c uuid sid host title extra=""
   c=$(client_get "$name")
   [[ -n "$c" ]] || die "Клиент '$name' не найден."
   uuid=$(jq -r .uuid <<<"$c")
   sid=$(jq -r .short_id <<<"$c")
   host=$SERVER_ADDRESS
   [[ $host == *:* ]] && host="[$host]"
-  printf 'vless://%s@%s:%s?encryption=none&flow=%s&security=reality&sni=%s&fp=%s&pbk=%s&sid=%s&spx=%%2F&type=tcp&headerType=none#%s-%s\n' \
+  title="$SERVER_LABEL-$name"
+  if [[ $variant == mobile ]]; then
+    validate_mobile_fragment
+    extra="&fragment=$MOBILE_FRAGMENT"
+    title="${title:0:26}-mob"          # HAPP: название до 30 символов
+  else
+    title="${title:0:30}"
+  fi
+  printf 'vless://%s@%s:%s?encryption=none&flow=%s&security=reality&sni=%s&fp=%s&pbk=%s&sid=%s&spx=%%2F&type=tcp&headerType=none%s#%s\n' \
     "$uuid" "$host" "$XRAY_PORT" "$VLESS_FLOW" "$REALITY_SNI" "$CLIENT_FINGERPRINT" \
-    "$REALITY_PUBLIC_KEY" "$sid" "$SERVER_LABEL" "$name"
+    "$REALITY_PUBLIC_KEY" "$sid" "$extra" "$title"
+}
+
+# Ссылки (и QR) устройства: «Дом» и «Мобильный»
+#   print_client_links <имя> <qr:0|1> [all|home|mobile]
+print_client_links() {
+  local name=$1 qr=${2:-1} which=${3:-all} link
+  if [[ $which == all || $which == home ]]; then
+    link=$(client_link "$name" home)
+    echo "${C_BOLD}[$name] Дом / Wi-Fi — без дробления, максимальная скорость:${C_RESET}"
+    printf '%s\n' "$link"
+    if [[ $qr -eq 1 ]]; then echo; print_qr "$link"; fi
+  fi
+  if mobile_profile_enabled && [[ $which == all || $which == mobile ]]; then
+    link=$(client_link "$name" mobile)
+    [[ $which == all ]] && echo
+    echo "${C_BOLD}[$name] Мобильный интернет — с дроблением ClientHello ($MOBILE_FRAGMENT):${C_RESET}"
+    printf '%s\n' "$link"
+    if [[ $qr -eq 1 ]]; then echo; print_qr "$link"; fi
+  fi
+  return 0
 }
 
 print_qr() {

@@ -46,10 +46,14 @@ jq -e --arg u "$U2" '[.inbounds[0].settings.clients[].id] | index($u) == null' d
 jq -e --arg u "$U2" '[.inbounds[0].settings.clients[].id] | index($u) != null' data/xray/config.json >/dev/null || fail "клиент не вернулся"
 pass "disable/enable-client"
 
-LINK=$(./manage.sh show-config laptop --no-qr | grep '^vless://')
+LINK=$(./manage.sh show-config laptop --no-qr --home | grep '^vless://')
 [[ $LINK =~ ^vless://[0-9a-f-]{36}@[^:]+:443\?encryption=none\&flow=xtls-rprx-vision\&security=reality\&sni=[^\&]+\&fp=chrome\&pbk=[A-Za-z0-9_-]{43}\&sid=[0-9a-f]{16}\&spx=%2F\&type=tcp\&headerType=none#.+ ]] \
   || fail "формат ссылки: $LINK"
 pass "формат vless:// ссылки"
+MLINK=$(./manage.sh show-config laptop --no-qr --mobile | grep '^vless://')
+[[ $MLINK =~ \&headerType=none\&fragment=[0-9]+-[0-9]+,[0-9]+-[0-9]+,tlshello#DE-laptop-mob$ ]] || fail "формат мобильной ссылки: $MLINK"
+[[ $(./manage.sh show-config laptop --no-qr | grep -c '^vless://') == 2 ]] || fail "show-config должен выдавать 2 профиля"
+pass "профили «Дом» и «Мобильный»"
 
 # 4. Реальное соединение через VPN: клиент Xray -> наш сервер -> интернет
 IMG=$(docker inspect -f '{{.Config.Image}}' vpn-xray)

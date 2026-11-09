@@ -39,10 +39,8 @@ apply_service xray
 log_ok "Клиент '$NAME' добавлен, Xray перезапущен."
 
 echo
-echo "${C_BOLD}Ссылка для HAPP ($NAME):${C_RESET}"
-link=$(client_link "$NAME")
-printf '%s\n' "$link"
-if [[ $SHOW_QR -eq 1 ]]; then
+print_client_links "$NAME" "$SHOW_QR"
+if mobile_profile_enabled; then
   echo
-  print_qr "$link"
+  echo "Добавьте в HAPP оба профиля и переключайтесь: «Дом» — на Wi-Fi, «-mob» — в мобильной сети."
 fi
