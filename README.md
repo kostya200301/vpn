@@ -187,6 +187,24 @@ sudo ./manage.sh show-config phone --home     # только «Дом» (QR)
 
 > Если в настройках HAPP включена глобальная фрагментация, она имеет приоритет над параметром из ссылки (так сказано в документации HAPP). Для профиля «Дом» её нужно выключить.
 
+### Выборочная маршрутизация: через VPN только то, что заблокировано
+
+Профиль маршрутизации HAPP задаёт, какой трафик идёт через VPN. Проект генерирует готовый профиль:
+**через VPN** идут Telegram и ресурсы, заблокированные в РФ (а также YouTube и Discord), **всё остальное — напрямую**. VPN можно держать включённым постоянно: российские и обычные сайты не тормозят, а с профилем «Мобильный» не платят задержку за дробление.
+
+```bash
+sudo ./manage.sh happ-routing          # ссылка happ://routing/onadd/... и QR-код
+sudo ./manage.sh happ-routing --png    # QR в файл data/export/happ-routing.png (если в терминале не помещается)
+sudo ./manage.sh happ-routing --off    # ссылка, выключающая маршрутизацию (весь трафик снова через VPN)
+```
+
+Отсканируйте QR камерой телефона: откроется HAPP и добавит профиль. Либо скопируйте ссылку на телефон и откройте её. Затем **переподключите VPN** в HAPP. При первом добавлении HAPP скачает геофайлы, это может занять до минуты.
+
+- Списки берутся из [runetfreedom/russia-v2ray-rules-dat](https://github.com/runetfreedom/russia-v2ray-rules-dat) (`geosite:ru-blocked`, `geoip:ru-blocked`, `geoip:telegram`), они обновляются автоматически.
+- Добавить свои сайты: допишите их в `config/happ/routing.json` в массив `ProxySites` (формат `domain:example.com`), затем снова `happ-routing` и добавьте профиль заново. Профиль с тем же именем HAPP перезапишет.
+- Если какой-то нужный сайт не открывается (его нет в списках, и он идёт напрямую), выключите маршрутизацию в HAPP или добавьте его в `ProxySites`.
+- Формат профиля описан в [документации HAPP](https://www.happ.su/main/ru/dev-docs/routing.md).
+
 ### Где взять HAPP
 
 Только из официальных источников. Ссылки на все платформы есть на сайте [happ.su](https://www.happ.su/main/readme). iOS: [App Store — «Happ - Proxy Utility»](https://apps.apple.com/app/id6504287215). Android: Google Play или APK с официального сайта. Windows и macOS: установщики на официальном сайте.
@@ -295,6 +313,7 @@ sudo ./manage.sh remove-client win-laptop  # удалить навсегда
 | `disable-client` / `enable-client <имя>` | отключить / включить устройство |
 | `list-clients [--full]` | список устройств |
 | `show-config [<имя>] [--home\|--mobile] [--png] [--no-qr]` | параметры подключения, ссылки и QR профилей «Дом» и «Мобильный» |
+| `happ-routing [--off\|--png\|--json]` | профиль HAPP: через VPN только Telegram и заблокированное |
 | `telegram-link` | ссылка Telegram Proxy |
 | `telegram-rotate [домен]` | новый секрет Telegram |
 | `telegram-enable` / `telegram-disable` / `telegram-status` | управление прокси |
@@ -485,6 +504,7 @@ vpn-server/
 ├── lib/
 │   └── common.sh                 # общие функции: .env, клиенты, генерация и проверка конфигов
 ├── config/                       # ШАБЛОНЫ (в Git)
+│   ├── happ/routing.json         # профиль выборочной маршрутизации HAPP
 │   ├── xray/config.template.json
 │   └── mtproto/config.template.toml
 ├── scripts/

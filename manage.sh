@@ -24,6 +24,7 @@ ${C_BOLD}Устройства (VPN, HAPP)${C_RESET}
   enable-client <имя>         снова включить
   list-clients [--full]       список подключений
   show-config [<имя>] [--png] параметры сервера / ссылка и QR устройства
+  happ-routing [--off|--png]  профиль HAPP: через VPN только Telegram и заблокированное
 
 ${C_BOLD}Telegram${C_RESET}
   telegram-link               ссылка и QR-код Telegram Proxy
@@ -113,6 +114,7 @@ dispatch() {
     enable-client)      run toggle-client.sh enable "$@" ;;
     list-clients)       run list-clients.sh "$@" ;;
     show-config)        run show-config.sh "$@" ;;
+    happ-routing)       run happ-routing.sh "$@" ;;
     telegram-link)      run telegram.sh link ;;
     telegram-rotate)    run telegram.sh rotate "$@" ;;
     telegram-enable)    run telegram.sh enable ;;
@@ -135,6 +137,7 @@ menu() {
     "list-clients:Список устройств"
     "add-client:Добавить устройство"
     "show-config:Ссылка / QR устройства"
+    "happ-routing:Профиль маршрутизации HAPP (VPN только для заблокированного)"
     "disable-client:Отключить устройство"
     "enable-client:Включить устройство"
     "remove-client:Удалить устройство"

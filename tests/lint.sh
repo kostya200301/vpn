@@ -44,6 +44,8 @@ else
   bad "шаблон Xray"
 fi
 grep -q '__MTG_SECRET__' config/mtproto/config.template.toml && ok "шаблон mtg" || bad "шаблон mtg"
+if jq -e '(.GlobalProxy|type)=="string" and (.ProxySites|type)=="array" and (.ProxyIp|type)=="array"' \
+     config/happ/routing.json >/dev/null; then ok "профиль HAPP routing.json"; else bad "профиль HAPP routing.json"; fi
 
 for p in .env data/clients.json data/xray/config.json data/mtproto/config.toml backups/vpn-backup-1.tar.gz; do
   if git check-ignore -q --no-index "$p" 2>/dev/null; then ok "git игнорирует $p"; else bad "git НЕ игнорирует $p"; fi

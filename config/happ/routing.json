@@ -1,0 +1,45 @@
+{
+  "Name": "VPN-only-blocked",
+  "GlobalProxy": "false",
+  "RemoteDNSType": "DoH",
+  "RemoteDNSDomain": "https://cloudflare-dns.com/dns-query",
+  "RemoteDNSIP": "1.1.1.1",
+  "DomesticDNSType": "DoU",
+  "DomesticDNSDomain": "",
+  "DomesticDNSIP": "77.88.8.8",
+  "Geoipurl": "https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/latest/download/geoip.dat",
+  "Geositeurl": "https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/latest/download/geosite.dat",
+  "LastUpdated": "",
+  "DnsHosts": {
+    "cloudflare-dns.com": "1.1.1.1"
+  },
+  "DirectSites": [],
+  "DirectIp": [
+    "10.0.0.0/8",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "169.254.0.0/16",
+    "224.0.0.0/4",
+    "255.255.255.255"
+  ],
+  "ProxySites": [
+    "geosite:ru-blocked",
+    "geosite:youtube",
+    "geosite:discord",
+    "domain:telegram.org",
+    "domain:t.me",
+    "domain:telegram.me",
+    "domain:telegra.ph",
+    "domain:telesco.pe",
+    "domain:tdesktop.com",
+    "domain:cdn-telegram.org"
+  ],
+  "ProxyIp": [
+    "geoip:telegram",
+    "geoip:ru-blocked"
+  ],
+  "BlockSites": [],
+  "BlockIp": [],
+  "DomainStrategy": "IPIfNonMatch",
+  "FakeDNS": "false"
+}
