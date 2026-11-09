@@ -110,6 +110,7 @@ load_env() {
   : "${BACKUP_KEEP:=10}" "${COMPOSE_PROFILES:=}" "${FIREWALL_MANAGE:=yes}" "${ENABLE_BBR:=yes}"
   # Без ':' — явно пустое значение в .env отключает мобильный профиль
   : "${MOBILE_FRAGMENT=12-30,10-15,tlshello}"
+  : "${BLOCK_ADS:=yes}"
   export XRAY_PORT MTG_PORT SERVER_LABEL CLIENT_FINGERPRINT BACKUP_KEEP COMPOSE_PROFILES
 }
 
@@ -375,6 +376,7 @@ render_xray_config() {
   jq --slurpfile clients "$CLIENTS_DB" \
      --arg target "$REALITY_TARGET" --arg sni "$REALITY_SNI" \
      --arg pk "$REALITY_PRIVATE_KEY" --arg flow "$VLESS_FLOW" \
+     --arg ads "${BLOCK_ADS:-yes}" \
      --argjson port "$XRAY_INTERNAL_PORT" '
     ($clients[0] | map(select(.enabled))) as $active
     | .inbounds |= map(
@@ -386,6 +388,10 @@ render_xray_config() {
           | .streamSettings.realitySettings.privateKey = $pk
           | .streamSettings.realitySettings.shortIds = ($active | map(.short_id))
         else . end)
+    # Блокировка рекламы и трекеров на сервере (список geosite:category-ads-all встроен в образ Xray)
+    | if $ads == "yes" then
+        .routing.rules = [{type: "field", domain: ["geosite:category-ads-all"], outboundTag: "block"}] + .routing.rules
+      else . end
   ' "$XRAY_TEMPLATE" > "$cand"
   chmod 640 "$cand"
   [[ ${EUID} -eq 0 ]] && chown "0:$XRAY_UID" "$cand"

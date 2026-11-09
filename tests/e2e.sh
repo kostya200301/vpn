@@ -16,6 +16,8 @@ export VPN_NONINTERACTIVE=1
 # 1. Установка
 ./install.sh -y --skip-firewall || fail "install.sh"
 pass "install.sh"
+jq -e '.routing.rules[0].domain == ["geosite:category-ads-all"]' data/xray/config.json >/dev/null || fail "нет правила блокировки рекламы"
+pass "блокировка рекламы в конфиге (geosite:category-ads-all принят Xray)"
 [[ $(stat -c %a .env) == 600 ]] || fail ".env должен иметь права 600"
 pass ".env 600"
 

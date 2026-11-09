@@ -25,6 +25,7 @@ ${C_BOLD}Устройства (VPN, HAPP)${C_RESET}
   list-clients [--full]       список подключений
   show-config [<имя>] [--png] параметры сервера / ссылка и QR устройства
   happ-routing [--off|--png]  профиль HAPP: через VPN только Telegram и заблокированное
+  block-ads [on|off|status]   блокировка рекламы и трекеров на сервере
 
 ${C_BOLD}Telegram${C_RESET}
   telegram-link               ссылка и QR-код Telegram Proxy
@@ -81,6 +82,29 @@ cmd_status() {
   echo "Клиентов активных: $(clients_init; clients_active_count) | Telegram: $(telegram_enabled && echo включён || echo выключен)"
 }
 
+cmd_block_ads() {
+  need_installed
+  case "${1:-status}" in
+    on|off)
+      local val=yes; [[ $1 == off ]] && val=no
+      set_env BLOCK_ADS "$val"
+      render_xray_config
+      fix_permissions
+      apply_service xray
+      if [[ $val == yes ]]; then log_ok "Блокировка рекламы включена (Xray перезапущен)."; else log_ok "Блокировка рекламы выключена (Xray перезапущен)."; fi
+      ;;
+    status)
+      if jq -e '.routing.rules[] | select(.domain? // [] | index("geosite:category-ads-all"))' \
+           "$XRAY_DIR/config.json" >/dev/null 2>&1; then
+        log_ok "Блокировка рекламы: включена"
+      else
+        log_info "Блокировка рекламы: выключена (включить: ./manage.sh block-ads on)"
+      fi
+      ;;
+    *) die "Использование: block-ads on|off|status" ;;
+  esac
+}
+
 cmd_rotate_reality() {
   need_installed
   log_warn "Будут созданы новые ключи REALITY. Все текущие ссылки перестанут работать —"
@@ -115,6 +139,7 @@ dispatch() {
     list-clients)       run list-clients.sh "$@" ;;
     show-config)        run show-config.sh "$@" ;;
     happ-routing)       run happ-routing.sh "$@" ;;
+    block-ads)          cmd_block_ads "$@" ;;
     telegram-link)      run telegram.sh link ;;
     telegram-rotate)    run telegram.sh rotate "$@" ;;
     telegram-enable)    run telegram.sh enable ;;
