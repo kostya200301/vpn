@@ -62,7 +62,20 @@
     "domain:sndcdn.com",
     "domain:medium.com",
     "domain:ntc.party",
-    "domain:rutracker.org"
+    "domain:rutracker.org",
+    "domain:tiktok.com",
+    "domain:tiktokv.com",
+    "domain:tiktokv.eu",
+    "domain:tiktokcdn.com",
+    "domain:tiktokcdn-eu.com",
+    "domain:tiktokcdn-us.com",
+    "domain:ttwstatic.com",
+    "domain:byteoversea.com",
+    "domain:ibytedtos.com",
+    "domain:ibyteimg.com",
+    "domain:ipstatp.com",
+    "domain:muscdn.com",
+    "domain:musical.ly"
   ],
   "ProxyIp": [
     "91.108.4.0/22",
@@ -81,7 +94,12 @@
     "2001:67c:4e8::/48",
     "2a0a:f280::/32"
   ],
-  "BlockSites": [],
+  "BlockSites": [
+    "domain:doubleclick.net",
+    "domain:googleadservices.com",
+    "domain:googlesyndication.com",
+    "domain:googletagservices.com"
+  ],
   "BlockIp": [],
   "DomainStrategy": "IPIfNonMatch",
   "FakeDNS": "false"
