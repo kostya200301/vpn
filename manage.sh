@@ -34,6 +34,8 @@ ${C_BOLD}Обслуживание${C_RESET}
   backup                      резервная копия ключей, клиентов и настроек
   restore [<файл>]            восстановление из резервной копии
   firewall [apply|status]     правила UFW
+  find-sni [--dry-run|--auto] подобрать сайт маскировки REALITY среди соседей VPS
+                              (помогает, когда VPN не работает в мобильной сети)
   rotate-reality-keys         новые ключи REALITY (ВСЕ устройства нужно переподключить)
   uninstall [--purge]         удаление
 EOF
@@ -118,6 +120,7 @@ dispatch() {
     telegram-status)    run telegram.sh status ;;
     health)             run health-check.sh "$@" ;;
     firewall)           run firewall.sh "${1:-status}" ;;
+    find-sni)           run find-sni.sh "$@" ;;
     rotate-reality-keys) cmd_rotate_reality ;;
     uninstall)          run uninstall.sh "$@" ;;
     help|-h|--help)     usage ;;
@@ -137,6 +140,7 @@ menu() {
     "remove-client:Удалить устройство"
     "telegram-link:Ссылка Telegram Proxy"
     "telegram-rotate:Сменить секрет Telegram"
+    "find-sni:Подобрать сайт маскировки (если не работает мобильный интернет)"
     "logs:Логи (Ctrl+C — выход)"
     "restart:Перезапустить сервисы"
     "backup:Резервная копия"
