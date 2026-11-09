@@ -109,7 +109,7 @@ load_env() {
   : "${XRAY_PORT:=443}" "${MTG_PORT:=8443}" "${SERVER_LABEL:=DE}" "${CLIENT_FINGERPRINT:=chrome}"
   : "${BACKUP_KEEP:=10}" "${COMPOSE_PROFILES:=}" "${FIREWALL_MANAGE:=yes}" "${ENABLE_BBR:=yes}"
   # Без ':' — явно пустое значение в .env отключает мобильный профиль
-  : "${MOBILE_FRAGMENT=15-40,8-15,tlshello}"
+  : "${MOBILE_FRAGMENT=12-30,10-15,tlshello}"
   export XRAY_PORT MTG_PORT SERVER_LABEL CLIENT_FINGERPRINT BACKUP_KEEP COMPOSE_PROFILES
 }
 
