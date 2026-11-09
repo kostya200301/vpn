@@ -1,0 +1,19 @@
+# Секреты и сгенерированные данные — никогда не коммитить
+.env
+.env.*
+!.env.example
+
+data/*
+!data/.gitkeep
+
+backups/*
+!backups/.gitkeep
+
+# Временные и служебные файлы
+*.tmp
+*.candidate.json
+*.swp
+*~
+.DS_Store
+.idea/
+.vscode/

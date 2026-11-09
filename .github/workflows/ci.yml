@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Статические проверки
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck jq
+      - name: Lint
+        run: bash tests/lint.sh
+
+  e2e:
+    name: Сквозной тест (установка, клиенты, реальное VPN-соединение)
+    runs-on: ubuntu-24.04
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free ports 443/8443 check
+        run: sudo ss -ltnp | grep -E ':(443|8443)\s' && exit 1 || true
+      - name: End-to-end
+        run: sudo bash tests/e2e.sh
+      - name: Logs on failure
+        if: failure()
+        run: |
+          sudo docker ps -a
+          sudo docker logs vpn-xray --tail 100 || true
+          sudo docker logs vpn-mtproto --tail 100 || true

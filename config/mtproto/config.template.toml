@@ -1,0 +1,6 @@
+# Конфигурация mtg v2 (MTProto-прокси для Telegram).
+# Файл-шаблон: реальный конфиг генерируется в data/mtproto/config.toml.
+# Обязательны только secret и bind-to (см. README проекта mtg).
+
+secret = "__MTG_SECRET__"
+bind-to = "0.0.0.0:__MTG_BIND_PORT__"
