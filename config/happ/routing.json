@@ -75,7 +75,13 @@
     "domain:ibyteimg.com",
     "domain:ipstatp.com",
     "domain:muscdn.com",
-    "domain:musical.ly"
+    "domain:musical.ly",
+    "domain:notion.so",
+    "domain:notion.site",
+    "domain:notion.com",
+    "domain:notion.new",
+    "domain:notion-static.com",
+    "domain:notionusercontent.com"
   ],
   "ProxyIp": [
     "91.108.4.0/22",
