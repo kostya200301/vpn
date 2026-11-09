@@ -7,8 +7,9 @@
 #   happ-routing.sh --json     — показать итоговый JSON профиля
 #   happ-routing.sh --off      — ссылка, выключающая маршрутизацию в HAPP
 #
-# Списки: config/happ/routing.json (ProxySites / ProxyIp). Геофайлы —
-# runetfreedom/russia-v2ray-rules-dat (обновляются автоматически).
+# Списки: config/happ/routing.json (ProxySites — домены, ProxyIp — сети Telegram
+# из core.telegram.org/resources/cidr.txt). Геофайлы (geosite/geoip) НЕ используются:
+# на iOS туннель ограничен 50 МБ памяти, а большие списки блокировок его превышают.
 # Формат профиля — документация HAPP: https://www.happ.su/main/ru/dev-docs/routing.md
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 
